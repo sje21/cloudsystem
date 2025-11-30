@@ -1,11 +1,23 @@
 // src/pages/recommend.jsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../App.css";
 
 export default function Recommend() {
   const [distance, setDistance] = useState("선택없음");
   const [level, setLevel] = useState("하");
   const [area, setArea] = useState("용산구"); // 기본값은 용산구로
+
+  useEffect(() => {
+    if (window.kakao && window.kakao.maps) {
+      const container = document.getElementById("map");
+      const options = {
+        center: new window.kakao.maps.LatLng(37.545419, 126.964649), // 원하는 초기 위치(숙대)
+        level: 3,
+      };
+      const map = new window.kakao.maps.Map(container, options);
+    }
+  }, []);
+
 
   return (
     <div className="recommend-page">
@@ -24,10 +36,9 @@ export default function Recommend() {
           {/* 왼쪽: 지도 영역 */}
           <section className="recommend-map">
             <div className="map-placeholder">
-              지도 영역 (지도 API 연동 예정)
+              <div id="map" style={{width:"100%", height:"400px"}}></div> {/* 카카오 지도 연동 */}
             </div>
           </section>
-
           {/* 오른쪽: 필터 + 코스 리스트 */}
           <aside className="recommend-side">
             {/* 🔹 필터 줄 */}
