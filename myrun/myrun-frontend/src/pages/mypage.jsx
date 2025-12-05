@@ -61,14 +61,6 @@ export default function MyPage() {
 
   const { monthDistanceData = [], weekDistanceData = [] } = stats;
 
-  const paceData = [
-    { name: "1km", pace: 7.2 },
-    { name: "2km", pace: 6.8 },
-    { name: "3km", pace: 6.5 },
-    { name: "4km", pace: 6.9 },
-    { name: "5km", pace: 6.6 },
-  ];
-
   const handleRowClick = (runId) => {
     navigate(`/specific?id=${runId}`);
   };
@@ -76,6 +68,7 @@ export default function MyPage() {
   return (
     <div className="mypage-page">
       <main className="mypage-main">
+        {/* 위쪽 그래프 카드 2개만 유지 */}
         <section className="mypage-cards">
           <div className="mypage-card">
             <h3 className="mypage-card-title">러닝 거리(month)</h3>
@@ -122,31 +115,9 @@ export default function MyPage() {
               </ResponsiveContainer>
             </div>
           </div>
-
-          <div className="mypage-card">
-            <h3 className="mypage-card-title">평균 페이스</h3>
-            <div className="mypage-chart-placeholder">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart
-                  data={paceData}
-                  margin={{ top: 10, right: 10, left: 20, bottom: 0 }}
-                >
-                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
-                  <YAxis hide />
-                  <Tooltip />
-                  <Line
-                    type="monotone"
-                    dataKey="pace"
-                    stroke="#4c8dff"
-                    strokeWidth={2}
-                    dot={{ r: 3 }}
-                  />
-                </LineChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
         </section>
 
+        {/* 아래쪽 표: 내 러닝 기록 목록 */}
         <section className="mypage-table-section">
           <table className="mypage-table">
             <thead>
