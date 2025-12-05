@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: myrun-mysql
+  labels:
+    app: myrun-mysql
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: myrun-mysql
+  template:
+    metadata:
+      labels:
+        app: myrun-mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: myrun-mysql-config
+                  key: MYSQL_DATABASE
+            - name: MYSQL_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: myrun-mysql-config
+                  key: MYSQL_USER
+            - name: MYSQL_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: myrun-mysql-secret
+                  key: MYSQL_PASSWORD
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: myrun-mysql-secret
+                  key: MYSQL_ROOT_PASSWORD
+          volumeMounts:
+            - name: init-sql
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: init-sql
+          configMap:
+            name: myrun-init-sql
+            items:
+              - key: init.sql
+                path: init.sql
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: myrun-init-sql
+data:
+  init.sql: |
+    -- 여기에 db/init.sql 내용 그대로 붙여넣기 (길면 일부만 바꿔도 됨)
+    -- (과제용으로는 간단 버전만 넣어도 OK)

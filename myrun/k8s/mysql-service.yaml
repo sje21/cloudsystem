@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: myrun-mysql
+spec:
+  selector:
+    app: myrun-mysql
+  ports:
+    - port: 3306
+      targetPort: 3306
+  clusterIP: None   # 간단히 headless service (optional)
