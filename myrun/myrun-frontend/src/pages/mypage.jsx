@@ -1,8 +1,9 @@
-// src/pages/mypage.jsx
-import React from "react";
+// myrun-frontend/src/pages/mypage.jsx
+import React, { useEffect, useState } from "react";
 import "../App.css";
 import { useNavigate } from "react-router-dom";
-// Recharts 추가
+import { API_BASE_URL } from "../api";
+import { getCurrentUser } from "../auth";
 import {
   LineChart,
   Line,
@@ -14,28 +15,40 @@ import {
 
 export default function MyPage() {
   const navigate = useNavigate();
+  const [runs, setRuns] = useState([]);
+  const [stats, setStats] = useState({
+    monthDistanceData: [],
+    weekDistanceData: [],
+  });
 
-  const handleFirstRowClick = () => {
-    navigate("/specific");
-  };
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (!user) {
+      navigate("/");
+      return;
+    }
 
-  // 임시 더미 데이터 (나중에 API/DB 값으로 교체 가능)
-  const monthDistanceData = [
-    { name: "1주", distance: 3 },
-    { name: "2주", distance: 5 },
-    { name: "3주", distance: 4 },
-    { name: "4주", distance: 6 },
-  ];
+    async function fetchData() {
+      try {
+        const [runsRes, statsRes] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/runs?userId=${user.userId}`),
+          fetch(`${API_BASE_URL}/api/runs/stats?userId=${user.userId}`),
+        ]);
 
-  const weekDistanceData = [
-    { name: "월", distance: 1 },
-    { name: "화", distance: 2 },
-    { name: "수", distance: 1.5 },
-    { name: "목", distance: 3 },
-    { name: "금", distance: 2.5 },
-    { name: "토", distance: 4 },
-    { name: "일", distance: 0 },
-  ];
+        const runsData = await runsRes.json();
+        const statsData = await statsRes.json();
+
+        setRuns(runsData);
+        setStats(statsData);
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchData();
+  }, [navigate]);
+
+  const { monthDistanceData, weekDistanceData } = stats;
 
   const paceData = [
     { name: "1km", pace: 7.2 },
@@ -45,12 +58,14 @@ export default function MyPage() {
     { name: "5km", pace: 6.6 },
   ];
 
+  const handleRowClick = (runId) => {
+    navigate(`/specific?id=${runId}`);
+  };
+
   return (
     <div className="mypage-page">
       <main className="mypage-main">
-        {/* 위쪽 그래프 카드 3개 */}
         <section className="mypage-cards">
-          {/* 월별 러닝 거리 그래프 */}
           <div className="mypage-card">
             <h3 className="mypage-card-title">러닝 거리(month)</h3>
             <div className="mypage-chart-placeholder">
@@ -74,7 +89,6 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 🔹 주별 러닝 거리 그래프 */}
           <div className="mypage-card">
             <h3 className="mypage-card-title">러닝 거리(week)</h3>
             <div className="mypage-chart-placeholder">
@@ -98,7 +112,6 @@ export default function MyPage() {
             </div>
           </div>
 
-          {/* 🔹 평균 페이스 그래프 */}
           <div className="mypage-card">
             <h3 className="mypage-card-title">평균 페이스</h3>
             <div className="mypage-chart-placeholder">
@@ -123,7 +136,6 @@ export default function MyPage() {
           </div>
         </section>
 
-        {/* 아래쪽 표 */}
         <section className="mypage-table-section">
           <table className="mypage-table">
             <thead>
@@ -135,27 +147,18 @@ export default function MyPage() {
               </tr>
             </thead>
             <tbody>
-              <tr
-                className="mypage-row clickable-row"
-                onClick={handleFirstRowClick}
-              >
-                <td>11월 15일</td>
-                <td>3km</td>
-                <td>1시간 10분</td>
-                <td>3.5km/h</td>
-              </tr>
-              <tr className="mypage-row">
-                <td>11월 12일</td>
-                <td>1km</td>
-                <td>30분</td>
-                <td>2.6km/h</td>
-              </tr>
-              <tr className="mypage-row">
-                <td>11월 7일</td>
-                <td>26km</td>
-                <td>4시간 15분</td>
-                <td>4.2km/h</td>
-              </tr>
+              {runs.map((run) => (
+                <tr
+                  key={run.id}
+                  className="mypage-row clickable-row"
+                  onClick={() => handleRowClick(run.id)}
+                >
+                  <td>{run.run_date}</td>
+                  <td>{run.distance_km}km</td>
+                  <td>{run.duration_min}분</td>
+                  <td>{run.avg_speed_kmh}km/h</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </section>

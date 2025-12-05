@@ -1,42 +1,69 @@
-// src/pages/main.jsx
+// myrun-frontend/src/pages/main.jsx
 import "../App.css";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { API_BASE_URL } from "../api";
+import { getCurrentUser } from "../auth";
 
 export default function Main() {
   const navigate = useNavigate();
+  const [summary, setSummary] = useState({
+    totalDistanceWeek: 0,
+    totalDurationHours: 0,
+    totalCaloriesWeek: 0,
+    avgSpeedWeek: 0,
+  });
+
+  useEffect(() => {
+    const user = getCurrentUser();
+    if (!user) {
+      navigate("/");
+      return;
+    }
+
+    async function fetchSummary() {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/runs/stats?userId=${user.userId}`
+        );
+        const data = await res.json();
+        if (data.summaryForMain) {
+          setSummary(data.summaryForMain);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    fetchSummary();
+  }, [navigate]);
 
   return (
     <div className="main-page">
-      {/* 상단 파란 헤더 */}
-      <header/>
-
-      {/* 가운데 내용 */}
       <div className="main-layout">
-        {/* 왼쪽: 이번 주 러닝 기록 카드 */}
         <section className="main-card">
           <h2 className="main-section-title">이번 주 러닝 기록</h2>
 
           <div className="stats-grid">
             <div className="stats-card">
               <p className="stats-label">달린 거리</p>
-              <p className="stats-value">24km</p>
+              <p className="stats-value">{summary.totalDistanceWeek}km</p>
             </div>
             <div className="stats-card">
               <p className="stats-label">달린 시간</p>
-              <p className="stats-value">6시간</p>
+              <p className="stats-value">{summary.totalDurationHours}시간</p>
             </div>
             <div className="stats-card">
               <p className="stats-label">소모 칼로리</p>
-              <p className="stats-value">000kcal</p>
+              <p className="stats-value">{summary.totalCaloriesWeek}kcal</p>
             </div>
             <div className="stats-card">
-              <p className="stats-label">평균 페이스</p>
-              <p className="stats-value">4.3km/h</p>
+              <p className="stats-label">평균 속력</p>
+              <p className="stats-value">{summary.avgSpeedWeek}km/h</p>
             </div>
           </div>
         </section>
 
-        {/* 오른쪽: 버튼 3개 */}
         <aside className="main-side">
           <button
             className="main-side-btn"

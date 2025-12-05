@@ -1,35 +1,70 @@
-// src/pages/specificpage.jsx
-import React, { useEffect } from "react";
+// myrun-frontend/src/pages/specific.jsx
+import React, { useEffect, useState } from "react";
 import "../App.css";
+import { useLocation } from "react-router-dom";
+import { API_BASE_URL } from "../api";
+import { getCurrentUser } from "../auth";
+
+function useQuery() {
+  const { search } = useLocation();
+  return new URLSearchParams(search);
+}
 
 export default function SpecificPage() {
+  const query = useQuery();
+  const runId = query.get("id");
+  const [run, setRun] = useState(null);
+
   useEffect(() => {
-      if (window.kakao && window.kakao.maps) {
-        const container = document.getElementById("map");
-        const options = {
-          center: new window.kakao.maps.LatLng(37.545419, 126.964649), //마커 기능 추가한 지도
-          level: 3,
-        };
-        const map = new window.kakao.maps.Map(container, options);
+    const user = getCurrentUser();
+    if (!user || !runId) return;
 
-        let markerPosition  = new window.kakao.maps.LatLng(37.545419, 126.964649);  
-        // 마커 위치   
-        // 추후 백엔드 위치 데이터를 받아와서 입력하는 것으로 수정
-
-        let marker = new window.kakao.maps.Marker({
-            position: markerPosition
-        });
-
-        marker.setMap(map); //마커 표시
+    async function fetchRun() {
+      try {
+        const res = await fetch(
+          `${API_BASE_URL}/api/runs/${runId}?userId=${user.userId}`
+        );
+        const data = await res.json();
+        setRun(data);
+      } catch (err) {
+        console.error(err);
       }
+    }
+
+    fetchRun();
+  }, [runId]);
+
+  // 지도 - 예시 마커
+  useEffect(() => {
+    if (window.kakao && window.kakao.maps) {
+      const container = document.getElementById("map");
+      const options = {
+        center: new window.kakao.maps.LatLng(37.545419, 126.964649),
+        level: 3,
+      };
+      const map = new window.kakao.maps.Map(container, options);
+
+      const markerPosition = new window.kakao.maps.LatLng(
+        37.545419,
+        126.964649
+      );
+      const marker = new window.kakao.maps.Marker({
+        position: markerPosition,
+      });
+
+      marker.setMap(map);
+    }
   }, []);
+
+  const dateText = run ? run.run_date : "";
+  const distanceText = run ? `${run.distance_km}km` : "";
+  const durationText = run ? `${run.duration_min}분` : "";
+  const speedText = run ? `${run.avg_speed_kmh}km/h` : "";
+  const calText = run ? `${run.calories}kcal` : "";
 
   return (
     <div className="specific-page">
-      {/* 상단 공통 헤더 */}
-
       <main className="specific-main">
-        {/* 상단 러닝 기록 한 줄 요약 테이블 */}
         <section className="specific-table-section">
           <table className="specific-table">
             <thead>
@@ -43,35 +78,33 @@ export default function SpecificPage() {
             </thead>
             <tbody>
               <tr>
-                <td>11월 15일</td>
-                <td>3km</td>
-                <td>1시간 10분</td>
-                <td>3.5km/h</td>
-                <td>250kcal</td>
+                <td>{dateText}</td>
+                <td>{distanceText}</td>
+                <td>{durationText}</td>
+                <td>{speedText}</td>
+                <td>{calText}</td>
               </tr>
             </tbody>
           </table>
         </section>
 
-        {/* 아래 코스 정보 + 지도 영역 */}
         <section className="specific-info-section">
-          {/* 왼쪽 코스 정보 */}
           <div className="specific-info-left">
             <div className="specific-info-title-pill">코스 정보</div>
             <div className="specific-info-box">
               <ul>
-                <li>숙명여대 옆에 위치</li>
-                <li>약 300m 동안 급경사 구간 있음</li>
-                <li>사람 적음</li>
-                <li>동물 많음</li>
+                <li>{run?.course_name || "코스 이름 정보 없음"}</li>
+                <li>{run?.memo || "메모가 없습니다."}</li>
               </ul>
             </div>
           </div>
 
-          {/* 오른쪽 지도 (나중에 API 연동) -> 연동 완료 */}
           <div className="specific-map-box">
             <div className="specific-map-placeholder">
-              <div id="map" style={{width:"100%", height:"400px"}}></div> 
+              <div
+                id="map"
+                style={{ width: "100%", height: "400px" }}
+              ></div>
             </div>
           </div>
         </section>

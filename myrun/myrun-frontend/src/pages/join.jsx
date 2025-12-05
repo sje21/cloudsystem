@@ -29,28 +29,49 @@ function Join() {
     setForm((prev) => ({ ...prev, [key]: onlyDigits }));
   };
 
-  const handleSubmit = (e) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
 
-    // 1) 비밀번호 일치 여부 체크
     if (form.password !== form.passwordConfirm) {
       setError("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
       return;
     }
 
-    // 2) 키/몸무게/나이 빈 값 체크 (필요하면)
     if (!form.height || !form.weight || !form.age) {
       setError("키, 몸무게, 나이를 모두 입력해주세요.");
       return;
     }
 
-    // TODO: 실제 회원가입 로직 (API 호출 등)
-    // 일단은 성공했다고 가정
-    alert("회원가입이 완료되었습니다!");
-    navigate("/"); // 로그인 페이지로 이동
-  };
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/auth/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          username: form.id,
+          password: form.password,
+          height: Number(form.height),
+          weight: Number(form.weight),
+          age: Number(form.age),
+          gender: form.gender,
+        }),
+      });
 
+      if (!res.ok) {
+        const data = await res.json();
+        setError(data.message || "회원가입 실패");
+        return;
+      }
+
+      alert("회원가입이 완료되었습니다!");
+      navigate("/");
+    } catch (err) {
+      console.error(err);
+      setError("서버에 연결할 수 없습니다.");
+    }
+  };
+  
   return (
     <div className="join-page">
       <div className="join-panel">

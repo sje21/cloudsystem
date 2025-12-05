@@ -1,4 +1,4 @@
-// src/App.jsx
+// myrun-frontend/src/App.jsx
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login from "./pages/login.jsx";
 import Main from "./pages/main.jsx";
@@ -12,6 +12,7 @@ import Header from "./pages/header.jsx";
 function App() {
   return (
     <BrowserRouter>
+      {/* 로그인/회원가입 외 페이지에서만 보이는 공통 헤더 */}
       <Header />
       <Routes>
         <Route path="/" element={<Login />} />
