@@ -306,11 +306,12 @@ body {
 .small-label {
   width: auto;
   font-size: 15px;
+  color: #111827;
 }
 
 /* 작은 숫자 인풋 */
 .small-input {
-  width: 120px;
+  width: 80px;
   height: 48px;
   padding: 0 12px;
   border: none;
@@ -879,3 +880,4 @@ body {
   background-color: #f5f5f5;
   color: #4c8dff;
 }
+

@@ -4,6 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
 import { API_BASE_URL } from "../api";
 import { getAuth, getToken, clearAuth } from "../auth";
+import flatpickr from "flatpickr";
+import "flatpickr/dist/flatpickr.min.css";
 
 export default function Record() {
   const navigate = useNavigate();
@@ -176,6 +178,14 @@ export default function Record() {
       mapRef.current = null;
     };
   }, []);
+
+  useEffect(() => {
+    flatpickr("#date-picker", {
+      dateFormat: "Y-m-d",
+      defaultDate: form.date || new Date(),
+      
+    });
+  }, []);
 
   // ✅ 시작/도착 좌표가 모두 선택되면
   //    백엔드(/api/runs/route-preview)를 호출해서
@@ -435,11 +445,10 @@ export default function Record() {
               날짜
             </label>
             <input
-              id="date"
-              type="date"
+              id="date-picker"
+              type="text"
               className="record-input"
               value={form.date}
-              onChange={handleChange("date")}
             />
           </div>
 
