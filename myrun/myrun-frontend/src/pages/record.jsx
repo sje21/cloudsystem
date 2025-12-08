@@ -1,4 +1,3 @@
-// src/pages/record.jsx
 import "../App.css";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useRef } from "react";
@@ -35,6 +34,9 @@ export default function Record() {
   const startMarkerRef = useRef(null);
   const endMarkerRef = useRef(null);
   const polylineRef = useRef(null);
+
+  // ✅ flatpickr용 input ref
+  const dateInputRef = useRef(null);
 
   // 로그인 체크
   useEffect(() => {
@@ -179,13 +181,21 @@ export default function Record() {
     };
   }, []);
 
+  // ✅ flatpickr 초기화 + onChange에서 form.date 업데이트
   useEffect(() => {
-    flatpickr("#date-picker", {
-      dateFormat: "Y-m-d",
-      defaultDate: form.date || new Date(),
-      
-    });
-  }, []);
+    if (!dateInputRef.current) return;
+
+    flatpickr(dateInputRef.current, {
+      dateFormat: "Y-m-d",
+      defaultDate: form.date || new Date(),
+      onChange: (_selectedDates, dateStr) => {
+        setForm((prev) => ({
+          ...prev,
+          date: dateStr,
+        }));
+      },
+    });
+  }, []); // form.date를 넣으면 매번 재초기화되니 []로 둔다
 
   // ✅ 시작/도착 좌표가 모두 선택되면
   //    백엔드(/api/runs/route-preview)를 호출해서
@@ -344,7 +354,9 @@ export default function Record() {
     }
 
     if (!routeInfo.distanceKm) {
-      setError("경로 거리 계산이 완료되지 않았습니다. 지도를 다시 한 번 확인해주세요.");
+      setError(
+        "경로 거리 계산이 완료되지 않았습니다. 지도를 다시 한 번 확인해주세요."
+      );
       return;
     }
 
@@ -441,14 +453,16 @@ export default function Record() {
         <form className="record-form" onSubmit={handleSubmit}>
           {/* 날짜 */}
           <div className="record-row">
-            <label className="record-label" htmlFor="date">
+            <label className="record-label" htmlFor="date-picker">
               날짜
             </label>
             <input
               id="date-picker"
               type="text"
               className="record-input"
+              ref={dateInputRef}
               value={form.date}
+              readOnly // 직접 타이핑은 막고 flatpickr만 사용
             />
           </div>
 
