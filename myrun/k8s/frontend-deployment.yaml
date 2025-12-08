@@ -5,7 +5,7 @@ metadata:
   labels:
     app: myrun-frontend
 spec:
-  replicas: 2
+  replicas: 1        # ★ 1개면 충분
   selector:
     matchLabels:
       app: myrun-frontend
