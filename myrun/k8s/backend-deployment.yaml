@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: myrun-backend
-          image: <YOUR_DOCKER_ID>/myrun-backend:latest
+          image: myrun-backend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 4000

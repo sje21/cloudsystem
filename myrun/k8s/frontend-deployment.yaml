@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: myrun-frontend
-          image: <YOUR_DOCKER_ID>/myrun-frontend:latest
+          image: myrun-frontend:latest
           imagePullPolicy: IfNotPresent
           ports:
             - containerPort: 3000
@@ -38,4 +38,4 @@ spec:
   ports:
     - port: 80
       targetPort: 3000
-  type: NodePort   # minikube에서 접근하기 쉽도록
+  type: NodePort
