@@ -1,9 +1,7 @@
 // myrun-frontend/src/pages/recommend.jsx
 import React, { useState, useEffect, useRef } from "react";
 import "../App.css";
-
-const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL || "http://localhost:4000";
+import { API_BASE_URL } from "../api";
 
 export default function Recommend() {
   const [level, setLevel] = useState("선택없음");
