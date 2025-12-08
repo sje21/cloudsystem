@@ -6,19 +6,34 @@ function toDate(raw) {
   return new Date(raw);
 }
 
-function isInLast7Days(date) {
+function startOfDay(date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getMonday(date) {
+  const d = startOfDay(date);
+  const day = d.getDay(); 
+
+  const diff = (day + 6) % 7;
+
+  const monday = new Date(d);
+  monday.setDate(d.getDate() - diff);
+  monday.setHours(0, 0, 0, 0);
+  return monday;
+}
+
+function isInThisWeek(date) {
   if (!date) return false;
+
   const today = new Date();
 
-  const d = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  const t = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate()
-  );
+  const d = startOfDay(date);
+  const t = startOfDay(today);
 
-  const diff = (t - d) / (1000 * 60 * 60 * 24);
-  return diff >= 0 && diff < 7;
+  const mondayOfDate = getMonday(d);
+  const mondayOfToday = getMonday(t);
+
+  return mondayOfDate.getTime() === mondayOfToday.getTime();
 }
 
 function weekOfMonth(date) {
@@ -53,7 +68,7 @@ function buildStatsFromRuns(runs) {
       monthDistance[w].distance += dist;
     }
 
-    if (isInLast7Days(d)) {
+    if (isInThisWeek(d)) {
       const dayIdx = d.getDay();
       weekDistance[dayIdx].distance += dist;
       totalDistanceWeek += dist;
